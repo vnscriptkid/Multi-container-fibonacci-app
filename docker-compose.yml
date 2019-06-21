@@ -1,0 +1,52 @@
+version: '3'
+services:
+  postgres:
+    image: 'postgres:latest'
+  redis:
+    image: 'redis:latest'
+  nginx:
+    restart: always
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:80"
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    # DELETE
+    # ports:
+    #   - "8080:5000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_DB=postgres
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres_password
+    volumes:
+      - /usr/app/node_modules
+      - /workspace/docker/complex-app/server:/usr/app
+    depends_on:
+      - postgres
+      - redis
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /usr/app/node_modules
+      - /workspace/docker/complex-app/client:/user/app  
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /usr/app/node_modules
+      - /workspace/docker/complex-app/worker:/user/app 
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+  
