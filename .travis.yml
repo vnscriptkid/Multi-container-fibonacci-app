@@ -4,9 +4,9 @@ services:
   - docker
 
 before_install:
-  - docker build -f ./client/Dockerfile.dev -t vnscriptkid/react-test
+  - docker build -f ./client/Dockerfile.dev -t vnscriptkid/react-test ./client
 
-script:
+script: 
   - docker run vnscriptkid/client-test npm run test:nowatch -- --coverage
 
 after_success:
