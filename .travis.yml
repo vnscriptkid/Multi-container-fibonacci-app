@@ -1,0 +1,24 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker build -f ./client/Dockerfile.dev -t vnscriptkid/react-test .
+
+script:
+  - docker run vnscriptkid/react-app npm run test:nowatch -- --coverage
+
+after_success:
+  - docker build -t vnscriptkid/fib-client ./client
+  - docker build -t vnscriptkid/fib-nginx ./nginx
+  - docker build -t vnscriptkid/fib-server ./server
+  - docker build -t vnscriptkid/fib-worker ./worker
+  # Login to docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  
+  # Take those images and push them to docker hub
+  - docker push vnscriptkid/fib-client
+  - docker push vnscriptkid/fib-server
+  - docker push vnscriptkid/fib-worker
+  - docker push vnscriptkid/fib-nginx
